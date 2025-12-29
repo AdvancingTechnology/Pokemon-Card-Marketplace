@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Slab Safari Theme - Light Mode */
+    --background: 43 29% 85%; /* Tan background */
+    --foreground: 155 35% 15%; /* Dark green text */
+    --card: 0 0% 100%;
+    --card-foreground: 155 35% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 155 35% 15%;
+    --primary: 45 65% 52%; /* Gold */
+    --primary-foreground: 155 35% 15%;
+    --secondary: 43 29% 85%; /* Tan */
+    --secondary-foreground: 155 35% 15%;
+    --muted: 43 29% 90%;
+    --muted-foreground: 155 20% 35%;
+    --accent: 45 65% 52%; /* Gold */
+    --accent-foreground: 155 35% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 155 20% 75%;
+    --input: 155 20% 75%;
+    --ring: 45 65% 52%; /* Gold */
+    --radius: 0.5rem;
+    --chart-1: 45 65% 52%;
+    --chart-2: 155 35% 35%;
+    --chart-3: 43 29% 65%;
+    --chart-4: 45 75% 62%;
+    --chart-5: 155 45% 45%;
+  }
+
+  .dark {
+    /* Slab Safari Theme - Dark Mode */
+    --background: 155 35% 12%; /* Dark jungle green */
+    --foreground: 43 29% 85%; /* Tan text */
+    --card: 155 35% 15%;
+    --card-foreground: 43 29% 85%;
+    --popover: 155 35% 15%;
+    --popover-foreground: 43 29% 85%;
+    --primary: 45 65% 52%; /* Gold */
+    --primary-foreground: 155 35% 15%;
+    --secondary: 155 35% 20%;
+    --secondary-foreground: 43 29% 85%;
+    --muted: 155 35% 20%;
+    --muted-foreground: 43 20% 65%;
+    --accent: 45 65% 52%; /* Gold */
+    --accent-foreground: 155 35% 15%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 155 35% 25%;
+    --input: 155 35% 25%;
+    --ring: 45 65% 52%; /* Gold */
+    --chart-1: 45 65% 52%;
+    --chart-2: 155 45% 45%;
+    --chart-3: 43 29% 45%;
+    --chart-4: 45 75% 42%;
+    --chart-5: 155 55% 35%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Safari-themed utilities */
+  .safari-card {
+    @apply bg-gradient-to-br from-safari-green to-safari-green-light rounded-xl border-2 border-safari-gold/20 shadow-lg;
+  }
+
+  .safari-card-hover {
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-safari-gold/50;
+  }
+
+  .gold-shine {
+    @apply relative overflow-hidden;
+  }
+
+  .gold-shine::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(212, 175, 55, 0.3) 50%,
+      transparent 70%
+    );
+    transform: rotate(45deg) translate(-100%, -100%);
+    animation: shine 3s ease-in-out infinite;
+  }
+
+  @keyframes shine {
+    0% {
+      transform: rotate(45deg) translate(-100%, -100%);
+    }
+    100% {
+      transform: rotate(45deg) translate(100%, 100%);
+    }
+  }
+
+  /* Pack tier styles */
+  .pack-bronze {
+    @apply bg-gradient-to-br from-amber-700 to-amber-900 border-amber-600;
+  }
+
+  .pack-gold {
+    @apply bg-gradient-to-br from-safari-gold to-safari-gold-dark border-safari-gold;
+  }
+
+  .pack-legendary {
+    @apply bg-gradient-to-br from-safari-gold-light via-safari-gold to-amber-600 border-safari-gold-light;
+  }
+
+  /* Text gradients */
+  .text-gold-gradient {
+    @apply bg-gradient-to-r from-safari-gold to-safari-gold-light bg-clip-text text-transparent;
+  }
+
+  .text-safari-gradient {
+    @apply bg-gradient-to-r from-safari-gold via-safari-green to-safari-tan bg-clip-text text-transparent;
+  }
+}
