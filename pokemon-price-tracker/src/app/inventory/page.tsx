@@ -61,19 +61,24 @@ export default function CollectionPage() {
         .order('opened_at', { ascending: false });
 
       if (data && !error) {
-        const transformedPulls = data.map((pull: any) => ({
-          id: pull.id,
-          opened_at: pull.opened_at,
-          pack_name: pull.packs?.name || 'Unknown Pack',
-          card_id: pull.cards?.id || '',
-          card_name: pull.cards?.name || 'Unknown Card',
-          card_set: pull.cards?.set_name || '',
-          card_rarity: pull.cards?.rarity,
-          card_image: pull.cards?.image_url,
-          card_price: pull.cards?.market_price,
-          redemption_status: pull.redemption_status,
-          resell_gems_earned: pull.resell_gems_earned,
-        }));
+        const transformedPulls = data.map((pull) => {
+          // Supabase returns nested objects for single relations
+          const packs = pull.packs as unknown as { name: string } | null;
+          const cards = pull.cards as unknown as { id: string; name: string; set_name: string; rarity: string | null; image_url: string | null; market_price: number | null } | null;
+          return {
+            id: pull.id as string,
+            opened_at: pull.opened_at as string,
+            pack_name: packs?.name || 'Unknown Pack',
+            card_id: cards?.id || '',
+            card_name: cards?.name || 'Unknown Card',
+            card_set: cards?.set_name || '',
+            card_rarity: cards?.rarity ?? null,
+            card_image: cards?.image_url ?? null,
+            card_price: cards?.market_price ?? null,
+            redemption_status: pull.redemption_status as 'in_inventory' | 'pending_redemption' | 'shipped' | 'resold',
+            resell_gems_earned: pull.resell_gems_earned as number | null,
+          };
+        });
         setPulls(transformedPulls);
       }
 
@@ -81,6 +86,7 @@ export default function CollectionPage() {
     };
 
     fetchPulls();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, authLoading, router]);
 
   // Calculate stats
@@ -199,7 +205,7 @@ export default function CollectionPage() {
             <span className="text-safari-tan/60 text-sm">Filter & Sort:</span>
           </div>
 
-          <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+          <Select value={sortBy} onValueChange={(value: 'recent' | 'value' | 'pack') => setSortBy(value)}>
             <SelectTrigger className="w-[180px] bg-safari-green-dark border-safari-gold/20 text-safari-tan">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>

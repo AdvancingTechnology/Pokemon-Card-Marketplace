@@ -88,20 +88,23 @@ export function PackOpeningModal({ packId, packName, packTier, isOpen, onClose }
       }
 
       // Weighted random selection
-      const totalWeight = packCards.reduce((sum: number, pc: any) => sum + (pc.weight || 1), 0);
+      const totalWeight = packCards.reduce((sum, pc) => sum + ((pc.weight as number) || 1), 0);
       let random = Math.random() * totalWeight;
-      let selectedCard: any = null;
+      let selectedCard: PulledCard | null = null;
 
       for (const packCard of packCards) {
-        random -= packCard.weight || 1;
+        random -= (packCard.weight as number) || 1;
         if (random <= 0) {
-          selectedCard = packCard.cards;
+          // Supabase returns cards as object for single relations
+          const card = packCard.cards as unknown as PulledCard;
+          selectedCard = card;
           break;
         }
       }
 
       if (!selectedCard) {
-        selectedCard = packCards[0].cards; // Fallback
+        const card = packCards[0].cards as unknown as PulledCard;
+        selectedCard = card; // Fallback
       }
 
       // Save pack open to database
@@ -192,9 +195,10 @@ export function PackOpeningModal({ packId, packName, packTier, isOpen, onClose }
       }
 
       setStage('confirmed');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Decision error:', err);
-      setError(`Failed to process your decision: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to process your decision: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

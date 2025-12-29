@@ -9,7 +9,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  TooltipItem
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { format, subDays } from 'date-fns';
@@ -73,8 +74,9 @@ export function PriceChart({ cardName, currentPrice }: PriceChartProps) {
         intersect: false,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         callbacks: {
-          label: (context: any) => {
-            return `$${context.parsed.y.toFixed(2)}`;
+          label: (context: TooltipItem<'line'>) => {
+            const value = context.parsed.y;
+            return value !== null ? `$${value.toFixed(2)}` : '';
           },
         },
       },
@@ -90,8 +92,8 @@ export function PriceChart({ cardName, currentPrice }: PriceChartProps) {
           color: 'rgba(0, 0, 0, 0.05)',
         },
         ticks: {
-          callback: function(value: any) {
-            return '$' + value.toFixed(0);
+          callback: function(value: string | number) {
+            return '$' + Number(value).toFixed(0);
           },
         },
       },

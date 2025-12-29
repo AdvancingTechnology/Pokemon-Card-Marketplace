@@ -100,6 +100,7 @@ export function PackDetailModal({ packId, isOpen, onClose, onPurchase }: PackDet
     };
 
     fetchPackDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, packId]);
 
   if (!isOpen) return null;

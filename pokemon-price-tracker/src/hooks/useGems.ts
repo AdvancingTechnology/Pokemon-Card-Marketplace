@@ -56,9 +56,9 @@ export function useGems() {
 
       setGemBalance(profile?.gem_balance || 0);
       setTransactions(txData as GemTransaction[]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching gem data:', err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
@@ -96,9 +96,9 @@ export function useGems() {
       setTransactions((prev) => [data as GemTransaction, ...prev]);
 
       return { success: true, data };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error adding transaction:', err);
-      return { success: false, error: err.message };
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
   };
 
@@ -131,6 +131,7 @@ export function useGems() {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user]);
 
   return {

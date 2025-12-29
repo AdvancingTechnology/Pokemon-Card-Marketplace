@@ -112,25 +112,26 @@ export default function Home() {
         .order('tier', { ascending: false });
 
       if (data && data.length > 0) {
-        const transformedPacks = data.map((pack: any) => ({
-          id: pack.id,
-          name: pack.name,
-          description: pack.description || '',
-          tier: pack.tier,
+        const transformedPacks = data.map((pack) => ({
+          id: pack.id as string,
+          name: pack.name as string,
+          description: (pack.description as string | null) || '',
+          tier: pack.tier as string,
           price: Number(pack.price),
           floorValue: Number(pack.floor_value || 0),
           ceilingValue: Number(pack.ceiling_value || 0),
           expectedValue: Number(pack.expected_value || 0),
-          totalOpened: pack.total_opened || 0,
-          isFeatured: pack.is_featured || false,
-          isHot: pack.is_hot || false,
-          imageUrl: pack.image_url,
+          totalOpened: (pack.total_opened as number | null) || 0,
+          isFeatured: (pack.is_featured as boolean | null) || false,
+          isHot: (pack.is_hot as boolean | null) || false,
+          imageUrl: pack.image_url as string | null,
         }));
         setPacks(transformedPacks);
       }
     };
 
     fetchPacks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const featuredPack = packs.find(p => p.isHot) || packs[0];

@@ -2,11 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase/server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-11-17.clover',
-});
+// Lazy initialization to prevent build errors when env vars are missing
+let stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not configured');
+    }
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-12-15.clover',
+    });
+  }
+  return stripe;
+}
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+function getWebhookSecret(): string {
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
+  }
+  return process.env.STRIPE_WEBHOOK_SECRET;
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -15,7 +30,7 @@ export async function POST(request: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    event = getStripe().webhooks.constructEvent(body, signature, getWebhookSecret());
   } catch (err) {
     console.error('Webhook signature verification failed:', err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
@@ -49,20 +64,23 @@ export async function POST(request: NextRequest) {
       }
 
       // Weighted random selection
-      const totalWeight = packCards.reduce((sum: number, pc: any) => sum + (pc.weight || 1), 0);
+      const totalWeight = packCards.reduce((sum, pc) => sum + ((pc.weight as number) || 1), 0);
       let random = Math.random() * totalWeight;
-      let selectedCard: any = null;
+      let selectedCard: { id: string; name: string; market_price: number | null } | null = null;
 
       for (const packCard of packCards) {
-        random -= packCard.weight || 1;
+        random -= (packCard.weight as number) || 1;
         if (random <= 0) {
-          selectedCard = packCard.cards;
+          // Supabase returns cards as object when using .single() style joins
+          const card = packCard.cards as unknown as { id: string; name: string; market_price: number | null };
+          selectedCard = card;
           break;
         }
       }
 
       if (!selectedCard) {
-        selectedCard = packCards[0].cards;
+        const card = packCards[0].cards as unknown as { id: string; name: string; market_price: number | null };
+        selectedCard = card;
       }
 
       // Create order record
