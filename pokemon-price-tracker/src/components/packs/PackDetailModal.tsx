@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Package, TrendingUp, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Package, TrendingUp, Zap, ChevronDown, ChevronUp, LogIn } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { createClient } from '@/lib/supabase/client';
 import { initiateCheckout } from '@/lib/stripe/client';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 interface PackDetailModalProps {
   packId: string;
@@ -55,7 +56,26 @@ export function PackDetailModal({ packId, isOpen, onClose, onPurchase }: PackDet
   const [packCards, setPackCards] = useState<PackCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAllCards, setShowAllCards] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const supabase = createClient();
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+    };
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
   useEffect(() => {
     if (!isOpen || !packId) return;
@@ -170,20 +190,35 @@ export function PackDetailModal({ packId, isOpen, onClose, onPurchase }: PackDet
               <div className="text-right">
                 <div className="text-sm text-safari-tan/60 mb-1">Price</div>
                 <div className="text-5xl font-bold text-safari-gold mb-4">${pack.price}</div>
-                <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={async () => {
-                    try {
-                      await initiateCheckout(packId);
-                    } catch (error) {
-                      console.error('Checkout failed:', error);
-                      alert('Failed to start checkout. Please try again.');
-                    }
-                  }}
-                >
-                  BUY & OPEN
-                </Button>
+                {isAuthenticated ? (
+                  <Button
+                    size="lg"
+                    className="w-full bg-safari-gold hover:bg-safari-gold/90 text-black font-bold"
+                    disabled={checkoutLoading}
+                    onClick={async () => {
+                      try {
+                        setCheckoutLoading(true);
+                        await initiateCheckout(packId);
+                      } catch (error) {
+                        console.error('Checkout failed:', error);
+                        alert('Failed to start checkout. Please try again.');
+                      } finally {
+                        setCheckoutLoading(false);
+                      }
+                    }}
+                  >
+                    {checkoutLoading ? 'Loading...' : 'BUY & OPEN'}
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    className="w-full bg-safari-gold hover:bg-safari-gold/90 text-black font-bold"
+                    onClick={() => setShowAuthModal(true)}
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign in to Buy
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -332,6 +367,16 @@ export function PackDetailModal({ packId, isOpen, onClose, onPurchase }: PackDet
           </div>
         )}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          // After successful login, authentication state will update via the listener
+        }}
+      />
     </div>
   );
 }
