@@ -84,7 +84,10 @@ export async function POST(request: NextRequest) {
             product_data: {
               name: pack.name,
               description: pack.description || `Open a ${pack.tier} tier pack`,
-              images: pack.image_url ? [pack.image_url] : [],
+              // Convert relative image URLs to absolute URLs for Stripe
+            images: pack.image_url
+              ? [pack.image_url.startsWith('http') ? pack.image_url : `${baseUrl}${pack.image_url}`]
+              : [],
             },
             unit_amount: Math.round(pack.price * 100), // Convert to cents
           },
