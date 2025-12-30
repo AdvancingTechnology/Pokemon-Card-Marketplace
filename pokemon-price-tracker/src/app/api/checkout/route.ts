@@ -21,10 +21,8 @@ export async function POST(request: NextRequest) {
   try {
     const { packId } = await request.json();
 
-    // Get the base URL from the request headers (works in production)
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || 'https';
-    const baseUrl = `${protocol}://${host}`;
+    // Hardcode the production URL to avoid any env var issues
+    const baseUrl = 'https://pokemon-price-tracker.vercel.app';
 
     // Get cookies for Supabase auth
     const cookieStore = await cookies();
