@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 // Lazy initialization to prevent build errors when env vars are missing
 let stripe: Stripe | null = null;
@@ -20,8 +21,31 @@ export async function POST(request: NextRequest) {
   try {
     const { packId } = await request.json();
 
-    // Get user from Supabase
-    const supabase = await createClient();
+    // Get cookies for Supabase auth
+    const cookieStore = await cookies();
+
+    // Create Supabase client with cookie access
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Ignore errors from Server Components
+            }
+          },
+        },
+      }
+    );
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     console.log('Checkout request - User:', user?.id, 'Auth error:', authError?.message);
