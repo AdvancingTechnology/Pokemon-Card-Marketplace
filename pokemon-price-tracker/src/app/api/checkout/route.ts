@@ -21,6 +21,11 @@ export async function POST(request: NextRequest) {
   try {
     const { packId } = await request.json();
 
+    // Get the base URL from the request headers (works in production)
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     // Get cookies for Supabase auth
     const cookieStore = await cookies();
 
@@ -89,8 +94,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/collection?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}?canceled=true`,
+      success_url: `${baseUrl}/collection?success=true`,
+      cancel_url: `${baseUrl}?canceled=true`,
       metadata: {
         userId: user.id,
         packId: pack.id,
