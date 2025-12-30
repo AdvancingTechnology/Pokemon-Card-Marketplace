@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'payment',
-      success_url: `${baseUrl}/collection?success=true`,
+      success_url: `${baseUrl}/inventory?success=true`,
       cancel_url: `${baseUrl}?canceled=true`,
       metadata: {
         userId: user.id,
