@@ -68,7 +68,7 @@ export function GemPurchaseModal({ open, onOpenChange }: GemPurchaseModalProps) 
       />
 
       {/* Modal */}
-      <Card className="relative z-10 max-w-2xl w-full mx-4 bg-[#1B3A2F] border-[#D4AF37]/30">
+      <Card className="relative z-10 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto bg-[#1B3A2F] border-[#D4AF37]/30">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-[#D4AF37]">
             <Diamond className="h-6 w-6 text-purple-400" />

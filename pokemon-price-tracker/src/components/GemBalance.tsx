@@ -22,6 +22,8 @@ export function GemBalance() {
       earned_resell: 'Card Resell',
       spent_pack: 'Pack Purchase',
       purchased: 'Gems Purchase',
+      purchase: 'Gems Purchase',
+      pack_open: 'Pack Opened',
       refund: 'Refund'
     };
 

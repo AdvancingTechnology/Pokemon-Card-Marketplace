@@ -249,7 +249,7 @@ export function PackOpeningModal({ packId, packName, packTier, isOpen, onClose }
         <X className="h-6 w-6 text-safari-tan" />
       </button>
 
-      <div className="relative w-full max-w-2xl">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Idle / Opening State */}
         {(stage === 'idle' || stage === 'opening') && (
           <Card className={`safari-card border-4 ${stage === 'opening' ? 'animate-pulse' : ''}`}>

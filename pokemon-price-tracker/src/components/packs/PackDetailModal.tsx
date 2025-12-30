@@ -113,7 +113,7 @@ export function PackDetailModal({ packId, isOpen, onClose, onPurchase }: PackDet
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-gradient-to-br from-safari-green-dark to-safari-green rounded-2xl border-2 border-safari-gold/30 shadow-2xl my-8">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-safari-green-dark to-safari-green rounded-2xl border-2 border-safari-gold/30 shadow-2xl my-8">
         {/* Close Button */}
         <button
           onClick={onClose}
