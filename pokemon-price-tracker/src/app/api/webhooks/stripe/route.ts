@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Create a Supabase client for webhooks (no cookies needed)
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 // Lazy initialization to prevent build errors when env vars are missing
 let stripe: Stripe | null = null;
@@ -40,7 +48,7 @@ async function handleGemPurchase(session: Stripe.Checkout.Session) {
     return { error: 'Invalid gems amount', status: 400 };
   }
 
-  const supabase = await createClient();
+  const supabase = getSupabaseClient();
 
   // Check if already processed (idempotency)
   const { data: existingTx } = await supabase
@@ -140,7 +148,7 @@ async function handlePackPurchase(session: Stripe.Checkout.Session) {
     return { error: 'Missing pack purchase metadata', status: 400 };
   }
 
-  const supabase = await createClient();
+  const supabase = getSupabaseClient();
 
   // Get pack cards with odds
   const { data: packCards, error: packCardsError } = await supabase
