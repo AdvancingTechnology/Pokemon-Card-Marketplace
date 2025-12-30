@@ -201,7 +201,8 @@ export function PackDetailModal({ packId, isOpen, onClose, onPurchase }: PackDet
                         await initiateCheckout(packId);
                       } catch (error) {
                         console.error('Checkout failed:', error);
-                        alert('Failed to start checkout. Please try again.');
+                        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+                        alert(`Checkout failed: ${errorMsg}`);
                       } finally {
                         setCheckoutLoading(false);
                       }
